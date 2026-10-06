@@ -16,9 +16,8 @@ opencv-python
 pytz
 pillow==9.5.0
 psutil
-py-tgcalls==0.9.7
+py-tgcalls==1.2.9
 pykeyboard
-kurigram==2.1.35
 python-dotenv
 pyyaml
 requests
@@ -36,4 +35,6 @@ yt-dlp
 # 🔗 GitHub : https://github.com/opanshuff2k/arush-vc-bot
 # 📢 Telegram Channel : https://t.me/ARUSHxVCBOT
 # ===========================================
+
+
 
