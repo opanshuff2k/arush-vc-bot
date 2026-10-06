@@ -19,75 +19,82 @@
 # Contact for permissions:
 # Email: badboy809075@gmail.com
 
+
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.enums import ButtonStyle
 import config
 from ARUSHxVCBOT import app
+
 
 def start_panel(_):
     buttons = [
         [
             InlineKeyboardButton(
-                text=_["S_B_1"], url=f"https://t.me/{app.username}?startgroup=true", style=ButtonStyle.PRIMARY
+                text=_["S_B_1"], url=f"https://t.me/{app.username}?startgroup=true"
             ),
-            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP, style=ButtonStyle.SUCCESS),
+            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP),
         ],
         [
-            InlineKeyboardButton(text=_["S_B_5"], user_id=config.OWNER_ID, style=ButtonStyle.DANGER),
-            InlineKeyboardButton(text=_["S_B_4"], callback_data="help_page_1", style=ButtonStyle.PRIMARY)  # About button
+            InlineKeyboardButton(text=_["S_B_5"], user_id=config.OWNER_ID),
+            InlineKeyboardButton(text=_["S_B_4"], callback_data="help_page_1")  # About button
         ],
     ]
     return buttons
+
 
 def private_panel(_):
     buttons = [
         [
-            InlineKeyboardButton(text=_["S_B_3"], url=f"https://t.me/{app.username}?startgroup=true", style=ButtonStyle.PRIMARY)
+            InlineKeyboardButton(text=_["S_B_3"], url=f"https://t.me/{app.username}?startgroup=true")
         ],
         [
-            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP, style=ButtonStyle.SUCCESS),
-            InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL, style=ButtonStyle.PRIMARY)
+            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP),
+            InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL)
         ],
         [
-            InlineKeyboardButton(text=_["S_H_4"], url=config.DONATE, style=ButtonStyle.SUCCESS),
-            InlineKeyboardButton(text=_["S_B_5"], user_id=config.OWNER_ID, style=ButtonStyle.DANGER),
+            InlineKeyboardButton(text=_["S_H_4"], url=config.DONATE),
+            InlineKeyboardButton(text=_["S_B_5"], user_id=config.OWNER_ID),
         ],
         [
-            InlineKeyboardButton(text=_["S_B_4"], callback_data="help_page_1", style=ButtonStyle.PRIMARY)
+            InlineKeyboardButton(text=_["S_B_4"], callback_data="help_page_1")
         ],
     ]
     return buttons
+
 
 def about_panel(_):
     buttons = [
         [
-            InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL, style=ButtonStyle.PRIMARY),
-            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP, style=ButtonStyle.SUCCESS),
+            InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL),
+            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_GROUP),
         ],
         [
-            InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_helper", style=ButtonStyle.DANGER)
+            InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_helper")
         ]
     ]
     return buttons
+
 
 def owner_panel(_):
     buttons = [
         [
-            InlineKeyboardButton(text=_["S_H_1"], url=config.INSTAGRAM, style=ButtonStyle.DANGER),
-            InlineKeyboardButton(text=_["S_H_2"], url=config.YOUTUBE, style=ButtonStyle.DANGER),
+            InlineKeyboardButton(text=_["S_H_1"], url=config.INSTAGRAM),
+            InlineKeyboardButton(text=_["S_H_2"], url=config.YOUTUBE),
         ],
         [
-            InlineKeyboardButton(text=_["S_H_3"], url=config.GITHUB, style=ButtonStyle.PRIMARY),
-            InlineKeyboardButton(text=_["S_H_4"], url=config.DONATE, style=ButtonStyle.SUCCESS),
+            InlineKeyboardButton(text=_["S_H_3"], url=config.GITHUB),
+            InlineKeyboardButton(text=_["S_H_4"], url=config.DONATE),
         ],
         [
-            InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_helper", style=ButtonStyle.DANGER)
+            InlineKeyboardButton(text=_["BACK_BUTTON"], callback_data="settingsback_helper")
         ]
     ]
     return buttons
 
 
+
+
 # ©️ Copyright Reserved - @NoxxOP  Nand Yaduwanshi
+
 
 # ===========================================
 # ©️ 2025 Nand Yaduwanshi (aka @NoxxOP)
@@ -96,4 +103,7 @@ def owner_panel(_):
 # ===========================================
 
 
+
+
 # ❤️ Love From ARUSHxVCBOT
+
