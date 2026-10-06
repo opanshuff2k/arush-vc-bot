@@ -19,11 +19,9 @@
 # Contact for permissions:
 # Email: badboy809075@gmail.com
 
-
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import config
 from ARUSHxVCBOT import app
-
 
 def start_panel(_):
     buttons = [
@@ -39,7 +37,6 @@ def start_panel(_):
         ],
     ]
     return buttons
-
 
 def private_panel(_):
     buttons = [
@@ -60,7 +57,6 @@ def private_panel(_):
     ]
     return buttons
 
-
 def about_panel(_):
     buttons = [
         [
@@ -72,7 +68,6 @@ def about_panel(_):
         ]
     ]
     return buttons
-
 
 def owner_panel(_):
     buttons = [
@@ -91,10 +86,7 @@ def owner_panel(_):
     return buttons
 
 
-
-
 # ©️ Copyright Reserved - @NoxxOP  Nand Yaduwanshi
-
 
 # ===========================================
 # ©️ 2025 Nand Yaduwanshi (aka @NoxxOP)
@@ -103,7 +95,4 @@ def owner_panel(_):
 # ===========================================
 
 
-
-
 # ❤️ Love From ARUSHxVCBOT
-

@@ -2,7 +2,6 @@ from typing import Union
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from ARUSHxVCBOT import app
 
-
 def help_pannel_page1(_, START: Union[bool, int] = None):
     return InlineKeyboardMarkup(
         [
@@ -34,7 +33,6 @@ def help_pannel_page1(_, START: Union[bool, int] = None):
             ],
         ]
     )
-
 
 def help_pannel_page2(_, START: Union[bool, int] = None):
     return InlineKeyboardMarkup(
@@ -68,7 +66,6 @@ def help_pannel_page2(_, START: Union[bool, int] = None):
         ]
     )
 
-
 def help_pannel_page3(_, START: Union[bool, int] = None):
     return InlineKeyboardMarkup(
         [
@@ -101,7 +98,6 @@ def help_pannel_page3(_, START: Union[bool, int] = None):
         ]
     )
 
-
 def help_pannel_page4(_, START: Union[bool, int] = None):
     return InlineKeyboardMarkup(
         [
@@ -115,3 +111,44 @@ def help_pannel_page4(_, START: Union[bool, int] = None):
             ],
             [
                 InlineKeyboardButton(text=_["H_B_35"], callback_data="help_callback hb35"),
+                InlineKeyboardButton(text=_["H_B_37"], callback_data="help_callback hb37"),
+            ],
+            [
+                InlineKeyboardButton(text=_["H_B_38"], callback_data="help_callback hb38"),
+                InlineKeyboardButton(text=_["H_B_39"], callback_data="help_callback hb39"),
+            ],
+            [
+                InlineKeyboardButton(text=_["H_B_36"], callback_data="help_callback hb36"),
+            ],   
+            [
+                InlineKeyboardButton(text="⏮", callback_data="help_page_3"),
+                InlineKeyboardButton(
+                    text=_["BACK_BUTTON"] if START else _["CLOSE_BUTTON"],
+                    callback_data="settingsback_helper" if START else "close",
+                ),
+                InlineKeyboardButton(text="⏭", callback_data="help_page_1"),
+            ],
+        ]
+    )
+
+def help_back_markup(_, page: int = 1):
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text=_["BACK_BUTTON"],
+                    callback_data=f"help_page_{page}",
+                )
+            ]
+        ]
+    )
+
+def private_help_panel(_):
+    return [
+        [
+            InlineKeyboardButton(
+                text=_["S_B_4"],
+                url=f"https://t.me/{app.username}?start=help",
+            ),
+        ]
+    ]
