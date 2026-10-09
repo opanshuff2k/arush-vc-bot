@@ -32,10 +32,14 @@ from pytgcalls.exceptions import (
     AlreadyJoinedError,
     NoActiveGroupCall,
 )
-from pytgcalls.types import Update
-from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
-from pytgcalls.types.input_stream.quality import HighQualityAudio, MediumQualityVideo
-from pytgcalls.types.stream import StreamAudioEnded
+from pytgcalls.types import (
+    AudioPiped,
+    AudioVideoPiped,
+    HighQualityAudio,
+    MediumQualityVideo,
+    StreamAudioEnded,
+    Update,
+)
 
 import config
 from ARUSHxVCBOT import LOGGER, YouTube, app
