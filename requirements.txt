@@ -17,7 +17,7 @@ pytz
 pillow==9.5.0
 psutil
 py-tgcalls==1.2.9
-ntgcalls==1.2.3
+ntgcalls==1.3.0
 pykeyboard
 python-dotenv
 pyyaml
@@ -36,4 +36,3 @@ yt-dlp
 # 🔗 GitHub : https://github.com/opanshuff2k/arush-vc-bot
 # 📢 Telegram Channel : https://t.me/ARUSHxVCBOT
 # ===========================================
-
