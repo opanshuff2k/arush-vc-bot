@@ -14,13 +14,13 @@ services:
       API_ID: 
         value: 29448785
       API_HASH: 
-        value: 599574f6aff0a09ebb76305b58e7e9c2
+        sync: false
       API_KEY:
         sync: false
       BOT_TOKEN:
         sync: false
       MONGO_DB_URI: 
-        value: mongodb+srv://pusers:nycreation@nycreation.pd4klp1.mongodb.net/?retryWrites=true&w=majority&appName=NYCREATION
+        sync: false
       OWNER_ID:
         value: 7574330905
       OWNER_USERNAME:
