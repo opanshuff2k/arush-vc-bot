@@ -42,7 +42,6 @@ except (ImportError, AttributeError):
 
 from pyrogram import idle
 from pyrogram.types import BotCommand
-from pytgcalls.exceptions import NoActiveGroupCall
 import config
 from ARUSHxVCBOT import LOGGER, app, userbot
 from ARUSHxVCBOT.core.call import Nand
@@ -127,18 +126,6 @@ async def init():
 
     await userbot.start()
     await Nand.start()
-
-    try:
-        await Nand.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
-    except NoActiveGroupCall:
-        LOGGER("ARUSHxVCBOT").warning(
-            "Log-group voice chat is not active; skipping startup stream test. "
-            "The bot will remain online and can join chats when /play is used."
-        )
-    except Exception as exc:
-        LOGGER("ARUSHxVCBOT").warning(
-            f"Startup stream test skipped: {type(exc).__name__}: {exc}"
-        )
 
     await Nand.decorators()
 
