@@ -22,6 +22,24 @@
 
 import asyncio
 import importlib
+
+# ntgcalls 1.2.x exposes enum members in uppercase, while PyTgCalls 1.2.9
+# uses title-case names. Apply aliases before importing any PyTgCalls module.
+try:
+    import ntgcalls
+
+    for _enum_type, _legacy_name, _native_name in (
+        (ntgcalls.StreamStatus, "Playing", "PLAYING"),
+        (ntgcalls.StreamStatus, "Paused", "PAUSED"),
+        (ntgcalls.StreamStatus, "Idling", "IDLING"),
+        (ntgcalls.InputMode, "File", "FILE"),
+        (ntgcalls.InputMode, "Shell", "SHELL"),
+    ):
+        if not hasattr(_enum_type, _legacy_name):
+            setattr(_enum_type, _legacy_name, getattr(_enum_type, _native_name))
+except (ImportError, AttributeError):
+    pass
+
 from pyrogram import idle
 from pyrogram.types import BotCommand
 from pytgcalls.exceptions import NoActiveGroupCall
