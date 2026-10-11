@@ -17,7 +17,7 @@ pytz
 pillow==9.5.0
 psutil
 py-tgcalls==1.2.9
-ntgcalls==1.3.0
+ntgcalls==1.2.0
 pykeyboard
 python-dotenv
 pyyaml
