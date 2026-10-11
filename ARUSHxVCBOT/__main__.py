@@ -131,12 +131,14 @@ async def init():
     try:
         await Nand.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
     except NoActiveGroupCall:
-        LOGGER("ARUSHxVCBOT").error(
-            "Please turn on the videochat of your log group\channel.\n\nStopping Bot..."
+        LOGGER("ARUSHxVCBOT").warning(
+            "Log-group voice chat is not active; skipping startup stream test. "
+            "The bot will remain online and can join chats when /play is used."
         )
-        exit()
-    except:
-        pass
+    except Exception as exc:
+        LOGGER("ARUSHxVCBOT").warning(
+            f"Startup stream test skipped: {type(exc).__name__}: {exc}"
+        )
 
     await Nand.decorators()
 
