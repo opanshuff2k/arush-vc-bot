@@ -22,6 +22,7 @@
 
 import asyncio
 import os
+import signal
 import shutil
 import socket
 from datetime import datetime
@@ -128,7 +129,10 @@ async def update_(client, message, _):
             )
     else:
         os.system("pip3 install -r requirements.txt")
-        os.system(f"kill -9 {os.getpid()} && bash start")
+        if os.getenv("ARUSH_SUPERVISED") == "1":
+            os.kill(os.getpid(), signal.SIGTERM)
+        else:
+            os.system(f"kill -9 {os.getpid()} && bash start")
         exit()
 
 
@@ -156,7 +160,10 @@ async def restart_(_, message):
     await response.edit_text(
         "» ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ, ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ғᴇᴡ sᴇᴄᴏɴᴅs ᴜɴᴛɪʟ ᴛʜᴇ ʙᴏᴛ sᴛᴀʀᴛs..."
     )
-    os.system(f"kill -9 {os.getpid()} && bash start")
+    if os.getenv("ARUSH_SUPERVISED") == "1":
+        os.kill(os.getpid(), signal.SIGTERM)
+    else:
+        os.system(f"kill -9 {os.getpid()} && bash start")
 
 
 # ©️ Copyright Reserved - @NoxxOP  Nand Yaduwanshi
