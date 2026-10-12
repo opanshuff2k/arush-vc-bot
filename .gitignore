@@ -185,3 +185,5 @@ cookies.txt
 cookies*.txt
 *.cookies.txt
 *cookies*.txt
+.spotify-token-cache*
+.cache-spotify*

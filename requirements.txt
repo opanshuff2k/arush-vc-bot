@@ -23,7 +23,7 @@ python-dotenv
 pyyaml
 requests
 speedtest-cli
-spotipy
+spotipy>=2.26.0,<3
 tgcrypto
 telegraph 
 unidecode

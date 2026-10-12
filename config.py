@@ -44,7 +44,13 @@ TG_VIDEO_FILESIZE_LIMIT = int(os.getenv("TG_VIDEO_FILESIZE_LIMIT", 2145386496))
 
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", None)
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", None)
+SPOTIFY_REDIRECT_URI = os.getenv(
+    "SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8888/callback"
+)
+SPOTIFY_TOKEN_CACHE_PATH = os.getenv(
+    "SPOTIFY_TOKEN_CACHE_PATH", "/data/.spotify-token-cache.json"
+)
+SPOTIFY_TOKEN_CACHE_JSON = os.getenv("SPOTIFY_TOKEN_CACHE_JSON", None)
 
 
 STRING1 = os.getenv("STRING_SESSION", None)
@@ -103,4 +109,3 @@ if SUPPORT_GROUP:
         raise SystemExit(
             "[ERROR] - SUPPORT_GROUP URL is invalid. It must start with https://"
         )
-
