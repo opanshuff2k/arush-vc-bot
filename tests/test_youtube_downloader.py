@@ -108,7 +108,10 @@ class YoutubeDownloaderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             cookie_file = os.path.join(directory, "cookies.txt")
             with open(cookie_file, "w", encoding="utf-8") as cookie_output:
-                cookie_output.write("# Netscape HTTP Cookie File\n")
+                cookie_output.write(
+                    "# Netscape HTTP Cookie File\n"
+                    "example.com\tTRUE\t/\tFALSE\t0\tSID\tfake\n"
+                )
             factory = Mock(side_effect=FakeYoutubeDL)
             with patch.dict(os.environ, {"COOKIES_FILE": cookie_file}):
                 with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", factory):
@@ -177,6 +180,47 @@ class YoutubeDownloaderTests(unittest.TestCase):
                         )
             with open(factory.call_args.args[0]["cookiefile"], encoding="utf-8") as cookie_file:
                 self.assertEqual(cookie_file.read(), expected)
+
+    def test_rejects_invalid_cookie_format_without_logging_contents(self):
+        sensitive_value = "DO_NOT_LOG_THIS_COOKIE_VALUE"
+        invalid_cookie = (
+            "example.com\tTRUE\t/\tFALSE\t0\tSID\t"
+            f"{sensitive_value}\textra-field\n"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(
+                os.environ,
+                {
+                    "COOKIES_FILE": os.path.join(directory, "missing.txt"),
+                    "YOUTUBE_COOKIES": invalid_cookie,
+                },
+            ):
+                with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", factory):
+                    with patch.object(youtube_downloader.logger, "warning") as warning:
+                        asyncio.run(
+                            youtube_downloader.download_youtube_media(
+                                "abc123", download_dir=directory
+                            )
+                        )
+
+            options = factory.call_args.args[0]
+            self.assertNotIn("cookiefile", options)
+            self.assertNotIn(
+                sensitive_value,
+                " ".join(str(call) for call in warning.call_args_list),
+            )
+
+    def test_redacts_cookie_details_from_yt_dlp_warnings(self):
+        target_logger = Mock()
+        safe_logger = youtube_downloader._SafeYtDlpLogger(target_logger)
+        sensitive_value = "DO_NOT_LOG_THIS_COOKIE_VALUE"
+        safe_logger.warning(
+            "Skipping cookie file entry: .youtube.com\\tSID\\t" + sensitive_value
+        )
+        message = target_logger.warning.call_args.args[0]
+        self.assertNotIn(sensitive_value, message)
+        self.assertIn("redacted", message)
 
     def test_returns_none_when_extractor_produces_no_file(self):
         with tempfile.TemporaryDirectory() as directory:

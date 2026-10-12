@@ -92,14 +92,20 @@ class YoutubeMetadataTests(unittest.TestCase):
         )
 
     def test_uses_configured_cookie_file_when_it_exists(self):
-        factory = Mock(side_effect=FakeYoutubeDL)
-        with patch.dict(os.environ, {"COOKIES_FILE": "private-cookies.txt"}):
-            with patch.object(youtube_metadata.os.path, "isfile", return_value=True):
+        with tempfile.TemporaryDirectory() as directory:
+            cookie_file = os.path.join(directory, "private-cookies.txt")
+            with open(cookie_file, "w", encoding="utf-8") as cookie_output:
+                cookie_output.write(
+                    "# Netscape HTTP Cookie File\n"
+                    "example.com\tTRUE\t/\tFALSE\t0\tSID\tfake\n"
+                )
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(os.environ, {"COOKIES_FILE": cookie_file}):
                 with patch.object(youtube_metadata.yt_dlp, "YoutubeDL", factory):
                     asyncio.run(youtube_metadata.fetch_youtube_track("Example track"))
-        options = factory.call_args.args[0]
-        self.assertEqual(options["cookiefile"], "private-cookies.txt")
-        self.assertEqual(options["retries"], 5)
+            options = factory.call_args.args[0]
+            self.assertEqual(options["cookiefile"], cookie_file)
+            self.assertEqual(options["retries"], 5)
 
     def test_materializes_secret_cookie_variable_with_private_permissions(self):
         cookie_contents = "# Netscape HTTP Cookie File\nexample.com\tTRUE\t/\tFALSE\t0\tSID\tsecret\n"
@@ -143,6 +149,45 @@ class YoutubeMetadataTests(unittest.TestCase):
                         )
             with open(factory.call_args.args[0]["cookiefile"], encoding="utf-8") as cookie_file:
                 self.assertEqual(cookie_file.read(), expected)
+
+    def test_rejects_invalid_cookie_format_without_logging_contents(self):
+        sensitive_value = "DO_NOT_LOG_THIS_COOKIE_VALUE"
+        invalid_cookie = (
+            "example.com\tTRUE\t/\tFALSE\t0\tSID\t"
+            f"{sensitive_value}\textra-field\n"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(
+                os.environ,
+                {
+                    "COOKIES_FILE": os.path.join(directory, "missing.txt"),
+                    "YOUTUBE_COOKIES": invalid_cookie,
+                },
+            ):
+                with patch.object(youtube_metadata.yt_dlp, "YoutubeDL", factory):
+                    with patch.object(youtube_metadata.logger, "warning") as warning:
+                        asyncio.run(
+                            youtube_metadata.fetch_youtube_track("Example track")
+                        )
+
+            options = factory.call_args.args[0]
+            self.assertNotIn("cookiefile", options)
+            self.assertNotIn(
+                sensitive_value,
+                " ".join(str(call) for call in warning.call_args_list),
+            )
+
+    def test_redacts_cookie_details_from_yt_dlp_warnings(self):
+        target_logger = Mock()
+        safe_logger = youtube_metadata._SafeYtDlpLogger(target_logger)
+        sensitive_value = "DO_NOT_LOG_THIS_COOKIE_VALUE"
+        safe_logger.warning(
+            "Skipping cookie file entry: .youtube.com\\tSID\\t" + sensitive_value
+        )
+        message = target_logger.warning.call_args.args[0]
+        self.assertNotIn(sensitive_value, message)
+        self.assertIn("redacted", message)
 
     def test_empty_search_results_raise_clear_error(self):
         class EmptyYoutubeDL(FakeYoutubeDL):

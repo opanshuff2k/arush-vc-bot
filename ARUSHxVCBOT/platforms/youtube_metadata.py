@@ -12,6 +12,48 @@ YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v={}"
 logger = logging.getLogger(__name__)
 
 
+class _SafeYtDlpLogger:
+    """Forward yt-dlp messages while redacting cookie-related diagnostics."""
+
+    def __init__(self, target_logger):
+        self.target_logger = target_logger
+
+    @staticmethod
+    def _safe_message(message):
+        text = str(message)
+        if "cookie" in text.casefold() or "\t" in text:
+            return "yt-dlp cookie diagnostic suppressed; sensitive details redacted"
+        return text
+
+    def debug(self, message):
+        return None
+
+    def warning(self, message):
+        self.target_logger.warning(self._safe_message(message))
+
+    def error(self, message):
+        self.target_logger.error(self._safe_message(message))
+
+
+def _valid_cookie_text(contents: str) -> bool:
+    has_cookie = False
+    for line in contents.splitlines():
+        if not line.strip() or (line.startswith("#") and not line.startswith("#HttpOnly_")):
+            continue
+        if len(line.split("\t")) != 7:
+            return False
+        has_cookie = True
+    return has_cookie
+
+
+def _valid_cookie_file(cookie_file: str) -> bool:
+    try:
+        with open(cookie_file, encoding="utf-8") as cookie_input:
+            return _valid_cookie_text(cookie_input.read())
+    except (OSError, UnicodeError):
+        return False
+
+
 def _duration_text(seconds: Optional[int]) -> Optional[str]:
     if seconds is None:
         return None
@@ -26,12 +68,22 @@ def _duration_text(seconds: Optional[int]) -> Optional[str]:
 def _add_cookiefile_option(options: dict) -> None:
     cookie_file = os.getenv("COOKIES_FILE")
     if cookie_file and os.path.isfile(cookie_file):
-        options["cookiefile"] = cookie_file
-        return
+        if _valid_cookie_file(cookie_file):
+            options["cookiefile"] = cookie_file
+            return
+        logger.warning("Ignoring invalid YouTube cookie file; contents redacted")
 
     cookie_contents = os.getenv("YOUTUBE_COOKIES")
     if cookie_contents:
-        cookie_contents = cookie_contents.replace("\\n", "\n").replace("\\t", "\t")
+        cookie_contents = (
+            cookie_contents.replace("\\n", "\n")
+            .replace("\\t", "\t")
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+        )
+        if not _valid_cookie_text(cookie_contents):
+            logger.warning("Ignoring invalid YOUTUBE_COOKIES format; contents redacted")
+            return
         cookie_file = os.path.join(
             tempfile.gettempdir(), f"arush-youtube-cookies-{os.getpid()}.txt"
         )
@@ -44,7 +96,10 @@ def _add_cookiefile_option(options: dict) -> None:
 
     local_cookie_file = "cookies.txt"
     if os.path.isfile(local_cookie_file):
-        options["cookiefile"] = local_cookie_file
+        if _valid_cookie_file(local_cookie_file):
+            options["cookiefile"] = local_cookie_file
+        else:
+            logger.warning("Ignoring invalid local YouTube cookie file; contents redacted")
     elif cookie_file:
         logger.warning("Configured YouTube cookies file is missing")
 
@@ -64,6 +119,7 @@ def _fetch_youtube_track_sync(link: str, *, videoid: bool = False) -> dict:
     options = {
         "quiet": True,
         "no_warnings": True,
+        "logger": _SafeYtDlpLogger(logger),
         "skip_download": True,
         "extract_flat": True,
         "noplaylist": True,
