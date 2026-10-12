@@ -5,6 +5,11 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 import config
 from ..logging import LOGGER
+from pyrogram.errors import FloodWait
+from .telegram_retry import (
+    disconnect_uninitialized_client,
+    retry_telegram_flood_wait,
+)
 
 
 class Nand(Client):
@@ -21,8 +26,14 @@ class Nand(Client):
         )
 
     async def start(self):
-        await super().start()
-        get_me = await self.get_me()
+        await retry_telegram_flood_wait(
+            super().start,
+            flood_wait_error=FloodWait,
+            logger=LOGGER(__name__),
+            operation_name="bot authorization",
+            before_retry=lambda: disconnect_uninitialized_client(self),
+        )
+        get_me = self.me
         self.username = get_me.username
         self.id = get_me.id
         self.name = self.me.first_name + " " + (self.me.last_name or "")

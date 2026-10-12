@@ -124,7 +124,7 @@ async def init():
 
     LOGGER("ARUSHxVCBOT.plugins").info("Successfully Imported Modules...")
 
-    await userbot.start()
+    await userbot.start(app.username)
     await Nand.start()
 
     await Nand.decorators()
