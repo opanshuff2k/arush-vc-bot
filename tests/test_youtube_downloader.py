@@ -82,7 +82,13 @@ class YoutubeDownloaderTests(unittest.TestCase):
             self.assertTrue(path)
             self.assertTrue(os.path.isfile(path))
             self.assertEqual(os.path.getsize(path), 5)
-            self.assertEqual(factory.call_args.args[0]["format"], "bestaudio/best")
+            options = factory.call_args.args[0]
+            self.assertEqual(options["format"], "bestaudio/best")
+            self.assertEqual(
+                options["extractor_args"]["youtube"]["player_client"],
+                ["default", "web_embedded"],
+            )
+            self.assertIn("node", options["js_runtimes"])
 
     def test_downloads_video_using_mp4_preferred_format(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -57,6 +57,8 @@ def _download_sync(link: str, *, video: bool, download_dir: str) -> Optional[str
         "noplaylist": True,
         "quiet": True,
         "no_warnings": True,
+        "extractor_args": {"youtube": {"player_client": ["default", "web_embedded"]}},
+        "js_runtimes": {"node": {}},
         "socket_timeout": 30,
         "retries": 5,
         "fragment_retries": 5,

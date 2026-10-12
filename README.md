@@ -23,6 +23,11 @@ a mode-`0600` temporary file at runtime, and decodes literal `\\n` / `\\t`
 separators. Never put cookie contents in GitHub or chat; enter them directly in
 Railway Variables. Cookie files are ignored by Git.
 
+Set the Railway variable once; it is reused for later playback and deploys, so
+you do not need to re-export cookies for every song. YouTube may invalidate a
+session eventually, but the `The page needs to be reloaded` error can also come
+from yt-dlp's logged-in player selection, which the bot handles automatically.
+
 ## Branding
 
 - Maintainer: **ARUSH**

@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.10-nodejs20
+FROM nikolaik/python-nodejs:python3.11-nodejs22
 
 RUN curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
     -o ffmpeg.tar.xz && \
@@ -9,14 +9,15 @@ RUN curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-stati
 
 COPY . /app/
 WORKDIR /app/
-
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 install --no-cache-dir --upgrade --pre "yt-dlp[default]"
 
 # ntgcalls 1.2.x exposes enum members in uppercase, while PyTgCalls 1.2.9
 # uses the older title-case spellings. Normalize those references at build time.
 RUN python3 - <<'PY'
+import sysconfig
 from pathlib import Path
-root = Path('/usr/local/lib/python3.10/site-packages/pytgcalls')
+root = Path(sysconfig.get_paths()["purelib"]) / "pytgcalls"
 replacements = {
     'StreamStatus.Playing': 'StreamStatus.PLAYING',
     'StreamStatus.Paused': 'StreamStatus.PAUSED',

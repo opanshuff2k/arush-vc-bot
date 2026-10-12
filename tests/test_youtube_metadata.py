@@ -60,6 +60,12 @@ class YoutubeMetadataTests(unittest.TestCase):
             )
 
         self.assertEqual(FakeYoutubeDL.last_target, "ytsearch1:Example track")
+        options = factory.call_args.args[0]
+        self.assertEqual(
+            options["extractor_args"]["youtube"]["player_client"],
+            ["default", "web_embedded"],
+        )
+        self.assertIn("node", options["js_runtimes"])
         self.assertEqual(details["vidid"], "dQw4w9WgXcQ")
         self.assertEqual(details["duration_min"], "3:33")
         self.assertEqual(
