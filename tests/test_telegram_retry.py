@@ -50,6 +50,50 @@ class TelegramFloodWaitRetryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(waits, [2928])
         logger.warning.assert_called_once()
 
+    async def test_retries_repeated_flood_waits_and_resets_partial_client(self):
+        class FakeClient:
+            is_connected = False
+            is_initialized = False
+            disconnect_calls = 0
+
+            async def disconnect(self):
+                self.disconnect_calls += 1
+                self.is_connected = False
+
+        client = FakeClient()
+        attempts = 0
+        waits = []
+
+        async def operation():
+            nonlocal attempts
+            attempts += 1
+            client.is_connected = True
+            if attempts == 1:
+                raise FakeFloodWait(2)
+            if attempts == 2:
+                raise FakeFloodWait(4)
+            client.is_initialized = True
+            return "started"
+
+        async def fake_sleep(seconds):
+            waits.append(seconds)
+
+        result = await telegram_retry.retry_telegram_flood_wait(
+            operation,
+            flood_wait_error=FakeFloodWait,
+            logger=Mock(),
+            operation_name="bot authorization",
+            before_retry=lambda: telegram_retry.disconnect_uninitialized_client(
+                client
+            ),
+            sleep=fake_sleep,
+        )
+
+        self.assertEqual(result, "started")
+        self.assertEqual(attempts, 3)
+        self.assertEqual(waits, [7, 9])
+        self.assertEqual(client.disconnect_calls, 2)
+
     async def test_returns_without_sleep_when_no_flood_wait_occurs(self):
         waits = []
 

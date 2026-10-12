@@ -25,7 +25,10 @@ from pyrogram.errors import FloodWait
 import config
 
 from ..logging import LOGGER
-from .telegram_retry import retry_telegram_flood_wait
+from .telegram_retry import (
+    disconnect_uninitialized_client,
+    retry_telegram_flood_wait,
+)
 
 assistants = []
 assistantids = []
@@ -97,6 +100,7 @@ class Userbot(Client):
             flood_wait_error=FloodWait,
             logger=LOGGER(__name__),
             operation_name=f"assistant account {account_number} authorization",
+            before_retry=lambda: disconnect_uninitialized_client(client),
         )
 
     async def _send_start_message(self, client, account_number):
