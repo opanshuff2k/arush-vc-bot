@@ -27,6 +27,13 @@ import importlib
 # uses title-case names. Apply aliases before importing any PyTgCalls module.
 try:
     import ntgcalls
+    from ntgcalls_compat import ensure_on_disconnect_compat
+
+    if not ensure_on_disconnect_compat(ntgcalls):
+        raise RuntimeError(
+            "Installed ntgcalls provides neither on_disconnect nor the "
+            "on_connection_change callback required for startup compatibility."
+        )
 
     for _enum_type, _legacy_name, _native_name in (
         (ntgcalls.StreamStatus, "Playing", "PLAYING"),
