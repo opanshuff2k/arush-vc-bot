@@ -20,12 +20,13 @@
 # Email: badboy809075@gmail.com
 
 
+import asyncio
 import re
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from py_yt import VideosSearch
 import config
+from ARUSHxVCBOT.platforms.youtube_metadata import fetch_youtube_track
 
 
 class SpotifyAPI:
@@ -50,27 +51,22 @@ class SpotifyAPI:
             return False
 
     async def track(self, link: str):
-        track = self.spotify.track(link)
-        info = track["name"]
-        for artist in track["artists"]:
-            fetched = f' {artist["name"]}'
-            if "Various Artists" not in fetched:
-                info += fetched
-        results = VideosSearch(info, limit=1)
-        for result in (await results.next())["result"]:
-            ytlink = result["link"]
-            title = result["title"]
-            vidid = result["id"]
-            duration_min = result["duration"]
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-        track_details = {
-            "title": title,
-            "link": ytlink,
-            "vidid": vidid,
-            "duration_min": duration_min,
-            "thumb": thumbnail,
-        }
-        return track_details, vidid
+        if self.spotify is None:
+            raise RuntimeError("Spotify API credentials are not configured")
+
+        track = await asyncio.to_thread(self.spotify.track, link)
+        title = track.get("name")
+        if not title:
+            raise LookupError("Spotify returned incomplete track metadata")
+
+        artists = [
+            artist["name"]
+            for artist in track.get("artists") or []
+            if artist.get("name") and "Various Artists" not in artist["name"]
+        ]
+        query = " ".join([title, *artists])
+        details = await fetch_youtube_track(query)
+        return details, details["vidid"]
 
     async def playlist(self, url):
         playlist = self.spotify.playlist(url)
