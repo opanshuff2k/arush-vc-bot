@@ -101,6 +101,8 @@ async def stream(
                     )
                 except:
                     raise AssistantErr(_["play_14"])
+                if not file_path:
+                    raise AssistantErr(_["play_14"])
                 await Nand.join_call(
                     chat_id,
                     original_chat_id,
@@ -171,6 +173,8 @@ async def stream(
                 vidid, mystic, videoid=True, video=status
             )
         except:
+            raise AssistantErr(_["play_14"])
+        if not file_path:
             raise AssistantErr(_["play_14"])
 
         if await is_active_chat(chat_id):
