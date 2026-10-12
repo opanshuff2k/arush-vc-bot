@@ -97,6 +97,25 @@ class YoutubeDownloaderTests(unittest.TestCase):
                 factory.call_args.args[0]["format"], "best[ext=mp4]/best"
             )
 
+    def test_uses_configured_cookie_file_for_download(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cookie_file = os.path.join(directory, "cookies.txt")
+            with open(cookie_file, "w", encoding="utf-8") as cookie_output:
+                cookie_output.write("# Netscape HTTP Cookie File\n")
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(os.environ, {"COOKIES_FILE": cookie_file}):
+                with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", factory):
+                    path = asyncio.run(
+                        youtube_downloader.download_youtube_media(
+                            "abc123", download_dir=directory
+                        )
+                    )
+            self.assertTrue(path)
+            options = factory.call_args.args[0]
+            self.assertEqual(options["cookiefile"], cookie_file)
+            self.assertEqual(options["retries"], 5)
+            self.assertEqual(options["fragment_retries"], 5)
+
     def test_returns_none_when_extractor_produces_no_file(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", EmptyYoutubeDL):

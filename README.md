@@ -15,6 +15,11 @@ A customized Telegram voice-chat music bot maintained by **ARUSH**.
 python3 -m ARUSHxVCBOT
 ```
 
+### Optional YouTube cookies
+If YouTube requires an authenticated session, provide a valid Netscape-format
+cookies file on the host and set `COOKIES_FILE` in `.env` to its path. Keep the
+file private; it is ignored by Git and must not be committed or shared.
+
 ## Branding
 
 - Maintainer: **ARUSH**

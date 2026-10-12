@@ -181,3 +181,7 @@ cython_debug/
 log.txt
 cache/
 tempdb/
+cookies.txt
+cookies*.txt
+*.cookies.txt
+*cookies*.txt

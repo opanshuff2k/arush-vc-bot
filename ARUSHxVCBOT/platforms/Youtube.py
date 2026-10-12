@@ -7,6 +7,7 @@ from py_yt import VideosSearch, Playlist
 from ARUSHxVCBOT.utils.formatters import time_to_seconds
 from ARUSHxVCBOT import LOGGER
 from .youtube_downloader import download_youtube_media
+from .youtube_metadata import fetch_youtube_track
 
 async def download_song(link: str) -> Optional[str]:
     return await download_youtube_media(link, video=False)
@@ -122,25 +123,8 @@ class YouTubeAPI:
         return ids
 
     async def track(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        if "&" in link:
-            link = link.split("&")[0]
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
-            title = result["title"]
-            duration_min = result["duration"]
-            vidid = result["id"]
-            yturl = result["link"]
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-        track_details = {
-            "title": title,
-            "link": yturl,
-            "vidid": vidid,
-            "duration_min": duration_min,
-            "thumb": thumbnail,
-        }
-        return track_details, vidid
+        track_details = await fetch_youtube_track(link, videoid=bool(videoid))
+        return track_details, track_details["vidid"]
 
     async def formats(self, link: str, videoid: Union[bool, str] = None):
         if videoid:

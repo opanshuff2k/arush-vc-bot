@@ -31,10 +31,17 @@ def _download_sync(link: str, *, video: bool, download_dir: str) -> Optional[str
         "quiet": True,
         "no_warnings": True,
         "socket_timeout": 30,
-        "retries": 3,
-        "fragment_retries": 3,
+        "retries": 5,
+        "fragment_retries": 5,
         "overwrites": False,
     }
+
+    cookie_file = os.getenv("COOKIES_FILE")
+    if cookie_file:
+        if os.path.isfile(cookie_file):
+            options["cookiefile"] = cookie_file
+        else:
+            logger.warning("Configured YouTube cookies file is missing")
 
     with yt_dlp.YoutubeDL(options) as downloader:
         info = downloader.extract_info(normalize_youtube_url(link), download=True)
