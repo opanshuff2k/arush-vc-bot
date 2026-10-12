@@ -86,7 +86,7 @@ class YoutubeDownloaderTests(unittest.TestCase):
             self.assertEqual(options["format"], "bestaudio/best")
             self.assertEqual(
                 options["extractor_args"]["youtube"]["player_client"],
-                ["default", "web_embedded"],
+                ["web_embedded"],
             )
             self.assertIn("node", options["js_runtimes"])
 

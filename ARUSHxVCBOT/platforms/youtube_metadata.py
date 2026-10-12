@@ -68,7 +68,7 @@ def _fetch_youtube_track_sync(link: str, *, videoid: bool = False) -> dict:
         "extract_flat": True,
         "noplaylist": True,
         "geo_bypass": True,
-        "extractor_args": {"youtube": {"player_client": ["default", "web_embedded"]}},
+        "extractor_args": {"youtube": {"player_client": ["web_embedded"]}},
         "js_runtimes": {"node": {}},
         "retries": 5,
         "fragment_retries": 5,

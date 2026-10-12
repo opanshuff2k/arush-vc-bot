@@ -63,7 +63,7 @@ class YoutubeMetadataTests(unittest.TestCase):
         options = factory.call_args.args[0]
         self.assertEqual(
             options["extractor_args"]["youtube"]["player_client"],
-            ["default", "web_embedded"],
+            ["web_embedded"],
         )
         self.assertIn("node", options["js_runtimes"])
         self.assertEqual(details["vidid"], "dQw4w9WgXcQ")
