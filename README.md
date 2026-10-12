@@ -28,6 +28,12 @@ you do not need to re-export cookies for every song. YouTube may invalidate a
 session eventually, but the `The page needs to be reloaded` error can also come
 from yt-dlp's logged-in player selection, which the bot handles automatically.
 
+### Optional Spotify link metadata
+For Spotify links, set both `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in
+Railway Variables, then redeploy. Keep the secret out of GitHub and chat. Spotify
+is used only to resolve track metadata; the bot still obtains playable audio
+from YouTube, so Spotify credentials are not a fallback audio source.
+
 ## Branding
 
 - Maintainer: **ARUSH**
