@@ -144,6 +144,34 @@ class YoutubeDownloaderTests(unittest.TestCase):
             self.assertEqual(stat.S_IMODE(os.stat(materialized_path).st_mode), 0o600)
             self.assertTrue(path)
 
+    def test_decodes_escaped_newlines_and_tabs_in_cookie_variable(self):
+        escaped = "# Netscape HTTP Cookie File\\n.example.com\\tTRUE\\t/\\tTRUE\\t0\\tSID\\tfake\\n"
+        expected = escaped.replace("\\n", "\n").replace("\\t", "\t")
+        with tempfile.TemporaryDirectory() as directory:
+            download_directory = os.path.join(directory, "downloads")
+            with patch.dict(
+                os.environ,
+                {
+                    "COOKIES_FILE": os.path.join(directory, "missing.txt"),
+                    "YOUTUBE_COOKIES": escaped,
+                },
+            ):
+                with patch.object(
+                    youtube_downloader.tempfile, "gettempdir", return_value=directory
+                ):
+                    with patch.object(
+                        youtube_downloader.yt_dlp,
+                        "YoutubeDL",
+                        Mock(side_effect=FakeYoutubeDL),
+                    ) as factory:
+                        asyncio.run(
+                            youtube_downloader.download_youtube_media(
+                                "abc123", download_dir=download_directory
+                            )
+                        )
+            with open(factory.call_args.args[0]["cookiefile"], encoding="utf-8") as cookie_file:
+                self.assertEqual(cookie_file.read(), expected)
+
     def test_returns_none_when_extractor_produces_no_file(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", EmptyYoutubeDL):

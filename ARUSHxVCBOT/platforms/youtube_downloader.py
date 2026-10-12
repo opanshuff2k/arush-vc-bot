@@ -21,6 +21,7 @@ def _add_cookiefile_option(options: dict) -> None:
 
     cookie_contents = os.getenv("YOUTUBE_COOKIES")
     if cookie_contents:
+        cookie_contents = cookie_contents.replace("\\n", "\n").replace("\\t", "\t")
         cookie_file = os.path.join(
             tempfile.gettempdir(), f"arush-youtube-cookies-{os.getpid()}.txt"
         )
@@ -29,6 +30,11 @@ def _add_cookiefile_option(options: dict) -> None:
             cookie_output.write(cookie_contents)
         os.chmod(cookie_file, 0o600)
         options["cookiefile"] = cookie_file
+        return
+
+    local_cookie_file = "cookies.txt"
+    if os.path.isfile(local_cookie_file):
+        options["cookiefile"] = local_cookie_file
     elif cookie_file:
         logger.warning("Configured YouTube cookies file is missing")
 

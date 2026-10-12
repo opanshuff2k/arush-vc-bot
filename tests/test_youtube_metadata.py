@@ -117,6 +117,27 @@ class YoutubeMetadataTests(unittest.TestCase):
                 self.assertEqual(cookie_file.read(), cookie_contents)
             self.assertEqual(stat.S_IMODE(os.stat(materialized_path).st_mode), 0o600)
 
+    def test_decodes_escaped_newlines_and_tabs(self):
+        escaped = "# Netscape HTTP Cookie File\\n.example.com\\tTRUE\\t/\\tTRUE\\t0\\tSID\\tfake\\n"
+        expected = escaped.replace("\\n", "\n").replace("\\t", "\t")
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.dict(
+                os.environ,
+                {
+                    "COOKIES_FILE": os.path.join(directory, "missing.txt"),
+                    "YOUTUBE_COOKIES": escaped,
+                },
+            ):
+                with patch.object(
+                    youtube_metadata.tempfile, "gettempdir", return_value=directory
+                ):
+                    with patch.object(youtube_metadata.yt_dlp, "YoutubeDL", Mock(side_effect=FakeYoutubeDL)) as factory:
+                        asyncio.run(
+                            youtube_metadata.fetch_youtube_track("Example track")
+                        )
+            with open(factory.call_args.args[0]["cookiefile"], encoding="utf-8") as cookie_file:
+                self.assertEqual(cookie_file.read(), expected)
+
     def test_empty_search_results_raise_clear_error(self):
         class EmptyYoutubeDL(FakeYoutubeDL):
             def extract_info(self, target, download):
