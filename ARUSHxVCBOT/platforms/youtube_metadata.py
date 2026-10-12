@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+import tempfile
 from typing import Optional
 
 import yt_dlp
@@ -20,6 +21,26 @@ def _duration_text(seconds: Optional[int]) -> Optional[str]:
     if hours:
         return f"{hours}:{minutes:02d}:{seconds:02d}"
     return f"{minutes}:{seconds:02d}"
+
+
+def _add_cookiefile_option(options: dict) -> None:
+    cookie_file = os.getenv("COOKIES_FILE")
+    if cookie_file and os.path.isfile(cookie_file):
+        options["cookiefile"] = cookie_file
+        return
+
+    cookie_contents = os.getenv("YOUTUBE_COOKIES")
+    if cookie_contents:
+        cookie_file = os.path.join(
+            tempfile.gettempdir(), f"arush-youtube-cookies-{os.getpid()}.txt"
+        )
+        descriptor = os.open(cookie_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as cookie_output:
+            cookie_output.write(cookie_contents)
+        os.chmod(cookie_file, 0o600)
+        options["cookiefile"] = cookie_file
+    elif cookie_file:
+        logger.warning("Configured YouTube cookies file is missing")
 
 
 def _fetch_youtube_track_sync(link: str, *, videoid: bool = False) -> dict:
@@ -45,12 +66,7 @@ def _fetch_youtube_track_sync(link: str, *, videoid: bool = False) -> dict:
         "fragment_retries": 5,
         "socket_timeout": 30,
     }
-    cookie_file = os.getenv("COOKIES_FILE")
-    if cookie_file:
-        if os.path.isfile(cookie_file):
-            options["cookiefile"] = cookie_file
-        else:
-            logger.warning("Configured YouTube cookies file is missing")
+    _add_cookiefile_option(options)
     with yt_dlp.YoutubeDL(options) as downloader:
         result = downloader.extract_info(target, download=False)
 

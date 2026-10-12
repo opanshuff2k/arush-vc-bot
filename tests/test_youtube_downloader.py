@@ -1,6 +1,7 @@
 import asyncio
 import importlib.util
 import os
+import stat
 import sys
 import tempfile
 import types
@@ -115,6 +116,33 @@ class YoutubeDownloaderTests(unittest.TestCase):
             self.assertEqual(options["cookiefile"], cookie_file)
             self.assertEqual(options["retries"], 5)
             self.assertEqual(options["fragment_retries"], 5)
+
+    def test_uses_cookie_contents_from_environment_variable(self):
+        cookie_contents = "# Netscape HTTP Cookie File\nexample.com\tTRUE\t/\tFALSE\t0\tSID\tsecret\n"
+        with tempfile.TemporaryDirectory() as directory:
+            cookie_path = os.path.join(directory, "missing-cookies.txt")
+            download_directory = os.path.join(directory, "downloads")
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(
+                os.environ,
+                {"COOKIES_FILE": cookie_path, "YOUTUBE_COOKIES": cookie_contents},
+            ):
+                with patch.object(
+                    youtube_downloader.tempfile, "gettempdir", return_value=directory
+                ):
+                    with patch.object(youtube_downloader.yt_dlp, "YoutubeDL", factory):
+                        path = asyncio.run(
+                            youtube_downloader.download_youtube_media(
+                                "abc123", download_dir=download_directory
+                            )
+                        )
+
+            options = factory.call_args.args[0]
+            materialized_path = options["cookiefile"]
+            with open(materialized_path, encoding="utf-8") as cookie_file:
+                self.assertEqual(cookie_file.read(), cookie_contents)
+            self.assertEqual(stat.S_IMODE(os.stat(materialized_path).st_mode), 0o600)
+            self.assertTrue(path)
 
     def test_returns_none_when_extractor_produces_no_file(self):
         with tempfile.TemporaryDirectory() as directory:

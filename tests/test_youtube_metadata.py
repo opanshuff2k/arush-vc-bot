@@ -1,7 +1,9 @@
 import asyncio
 import importlib.util
 import os
+import stat
 import sys
+import tempfile
 import types
 import unittest
 from pathlib import Path
@@ -92,6 +94,28 @@ class YoutubeMetadataTests(unittest.TestCase):
         options = factory.call_args.args[0]
         self.assertEqual(options["cookiefile"], "private-cookies.txt")
         self.assertEqual(options["retries"], 5)
+
+    def test_materializes_secret_cookie_variable_with_private_permissions(self):
+        cookie_contents = "# Netscape HTTP Cookie File\nexample.com\tTRUE\t/\tFALSE\t0\tSID\tsecret\n"
+        with tempfile.TemporaryDirectory() as directory:
+            cookie_path = os.path.join(directory, "missing-cookies.txt")
+            factory = Mock(side_effect=FakeYoutubeDL)
+            with patch.dict(
+                os.environ,
+                {"COOKIES_FILE": cookie_path, "YOUTUBE_COOKIES": cookie_contents},
+            ):
+                with patch.object(
+                    youtube_metadata.tempfile, "gettempdir", return_value=directory
+                ):
+                    with patch.object(youtube_metadata.yt_dlp, "YoutubeDL", factory):
+                        asyncio.run(
+                            youtube_metadata.fetch_youtube_track("Example track")
+                        )
+
+            materialized_path = factory.call_args.args[0]["cookiefile"]
+            with open(materialized_path, encoding="utf-8") as cookie_file:
+                self.assertEqual(cookie_file.read(), cookie_contents)
+            self.assertEqual(stat.S_IMODE(os.stat(materialized_path).st_mode), 0o600)
 
     def test_empty_search_results_raise_clear_error(self):
         class EmptyYoutubeDL(FakeYoutubeDL):

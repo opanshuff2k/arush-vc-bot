@@ -16,9 +16,11 @@ python3 -m ARUSHxVCBOT
 ```
 
 ### Optional YouTube cookies
-If YouTube requires an authenticated session, provide a valid Netscape-format
-cookies file on the host and set `COOKIES_FILE` in `.env` to its path. Keep the
-file private; it is ignored by Git and must not be committed or shared.
+If YouTube requires an authenticated session, either set `COOKIES_FILE` to a
+private Netscape-format cookie file on the host, or set the Railway secret
+variable `YOUTUBE_COOKIES` to the file's contents. The bot writes the latter to
+a mode-`0600` temporary file at runtime. Never put cookie contents in GitHub or
+chat; enter them directly in Railway Variables. Cookie files are ignored by Git.
 
 ## Branding
 

@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+import tempfile
 from typing import Optional
 
 import yt_dlp
@@ -10,6 +11,26 @@ import yt_dlp
 YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v={}"
 DOWNLOAD_DIR = "ARUSHxVCBOT6BtojOs3CnEsDOE4sK1z"
 logger = logging.getLogger(__name__)
+
+
+def _add_cookiefile_option(options: dict) -> None:
+    cookie_file = os.getenv("COOKIES_FILE")
+    if cookie_file and os.path.isfile(cookie_file):
+        options["cookiefile"] = cookie_file
+        return
+
+    cookie_contents = os.getenv("YOUTUBE_COOKIES")
+    if cookie_contents:
+        cookie_file = os.path.join(
+            tempfile.gettempdir(), f"arush-youtube-cookies-{os.getpid()}.txt"
+        )
+        descriptor = os.open(cookie_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as cookie_output:
+            cookie_output.write(cookie_contents)
+        os.chmod(cookie_file, 0o600)
+        options["cookiefile"] = cookie_file
+    elif cookie_file:
+        logger.warning("Configured YouTube cookies file is missing")
 
 
 def normalize_youtube_url(link: str) -> str:
@@ -36,12 +57,7 @@ def _download_sync(link: str, *, video: bool, download_dir: str) -> Optional[str
         "overwrites": False,
     }
 
-    cookie_file = os.getenv("COOKIES_FILE")
-    if cookie_file:
-        if os.path.isfile(cookie_file):
-            options["cookiefile"] = cookie_file
-        else:
-            logger.warning("Configured YouTube cookies file is missing")
+    _add_cookiefile_option(options)
 
     with yt_dlp.YoutubeDL(options) as downloader:
         info = downloader.extract_info(normalize_youtube_url(link), download=True)
